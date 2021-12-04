@@ -1,0 +1,30 @@
+{
+  "name": "vs_2021",
+  "version": "1.0.0",
+  "description": "AWS Image Rekognition S3 Image Manipulation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/r-prem/vs_2021.git"
+  },
+  "keywords": [
+    "aws",
+    "uibk",
+    "s3",
+    "lambda"
+  ],
+  "type": "module",
+  "author": "Raffael Prem",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/r-prem/vs_2021/issues"
+  },
+  "homepage": "https://github.com/r-prem/vs_2021#readme",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.44.0",
+    "@aws-sdk/node-http-handler": "^3.40.0"
+  }
+}
