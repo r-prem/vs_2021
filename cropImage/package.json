@@ -1,0 +1,19 @@
+{
+  "name": "resize",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "aws-sdk": "^2.1043.0"
+  },
+  "dependencies": {
+    "buffer-image-size": "^0.6.4",
+    "gm": "^1.23.1",
+    "sharp": "^0.29.3"
+  }
+}

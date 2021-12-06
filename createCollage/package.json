@@ -1,0 +1,17 @@
+{
+  "name": "collage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Raffael Prem",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1043.0",
+    "file-type": "^17.0.0",
+    "join-images": "^1.0.0",
+    "sharp": "^0.29.3"
+  }
+}
