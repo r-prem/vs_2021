@@ -1,0 +1,185 @@
+---
+name: "final"
+dataIns:
+- name: "inputBucket"
+  type: "string"
+  source: "inputBucket"
+- name: "outputBucket"
+  type: "string"
+  source: "outputBucket"  
+workflowBody:
+- function:
+    name: "getImageList"
+    type: "imageListType"
+    dataIns:
+    - name: "bucketIn"
+      type: "string"
+      source: "final/inputBucket"
+    - name: "bucketOut"
+      type: "string"
+      source: "final/outputBucket"     
+    dataOuts:
+    - name: "length"
+      type:  "number" 
+    - name: "imageList"
+      type: "collection"
+    - name: "bucketIn"
+      type: "string"
+    - name: "bucketOut"
+      type: "string"       
+    properties:
+    - name: "resource"
+      value: "arn:aws:lambda:us-east-1:577131720219:function:getImageList"     
+- parallelFor:
+    name: "pCategorizeImage"
+    dataIns:
+    - name: "imageList"
+      type: "string"
+      source: "getImageList/imageList"
+      constraints:
+      - name: "distribution"
+        value: "BLOCK(1)"
+    - name: "bucketIn"
+      type: "string"
+      source: "getImageList/bucketIn"   
+      constraints:
+      - name: "distribution"
+        value: "REPLICATE(*)"     
+    - name: "bucketOut"
+      type: "collection"
+      source: "getImageList/bucketOut"   
+      constraints:
+      - name: "distribution"
+        value: "REPLICATE(*)"               
+    loopCounter:
+      from: "0"
+      to: "getImageList/length"
+      step: "1"
+    loopBody:
+    - function: 
+          name: "categorizeImage"
+          type: "catImageType"
+          dataIns:
+          - name: "image"
+            type: "string"
+            source: "pCategorizeImage/imageList"
+          - name: "bucketIn"
+            type: "string"
+            source: "pCategorizeImage/bucketIn"
+          - name: "bucketOut"
+            type: "string"
+            source: "pCategorizeImage/bucketOut"            
+          dataOuts:
+          - name: "image"
+            type: "string"
+          - name: "emotion"
+            type: "string"
+          - name: "boundingBox"
+            type: "string"
+          - name: "bucketIn"
+            type: "string"
+          - name: "bucketOut"
+            type: "string"                                    
+          properties:
+          - name: "resource"
+            value: "arn:aws:lambda:us-east-1:577131720219:function:categorizeImage"    
+    - function:
+         name: "cropImage"
+         type: "croppedImageType"
+         dataIns:
+         - name: "key"    
+           type: "string"
+           source: "categorizeImage/image"
+         - name: "emotion"    
+           type: "string"
+           source: "categorizeImage/emotion"           
+         - name: "boundingBox"    
+           type: "string"
+           source: "categorizeImage/boundingBox"
+         - name: "bucketIn"
+           type: "string"
+           source: "categorizeImage/bucketIn"
+         - name: "bucketOut"
+           type: "string"
+           source: "categorizeImage/bucketOut"                             
+         dataOuts:
+         - name: "result"
+           type: "string"
+         properties:
+         - name: "resource"
+           value: "arn:aws:lambda:us-east-1:577131720219:function:cropImage"    
+    dataOuts:
+    - name: "processedImages"
+      type: "collection"
+      source: "cropImage/result"
+    - name: "bucketIn"
+      type: "string"
+      source: "pCategorizeImage/bucketIn"
+    - name: "bucketOut"
+      type: "string"
+      source: "pCategorizeImage/bucketOut"              
+- function:
+    name: "groupByEmotion"
+    type: "groupedEmotionType"
+    dataIns:
+    - name: "images"
+      type: "string"
+      source: "pCategorizeImage/processedImages"
+    - name: "bucketOut"
+      type: "string"
+      source: "pCategorizeImage/bucketOut"                
+    dataOuts:
+    - name: "groupedImages"
+      type:  "collection" 
+    - name: "length"
+      type:  "number"
+    - name: "bucketOut"
+      type: "string"             
+    properties:
+    - name: "resource"
+      value: "arn:aws:lambda:us-east-1:577131720219:function:groupByEmotion"       
+- parallelFor:
+    name: "pCreateCollage"
+    dataIns:
+    - name: "images"
+      type: "string"
+      source: "groupByEmotion/groupedImages"
+      constraints:
+      - name: "distribution"
+        value: "BLOCK(1)"
+    - name: "bucketOut"
+      type: "string"
+      source: "groupByEmotion/bucketOut"
+      constraints:
+      - name: "distribution"
+        value: "REPLICATE(*)"                
+    loopCounter:
+      from: "0"
+      to: "groupByEmotion/length"
+      step: "1"        
+    loopBody:
+    - function:
+          name: "createCollage"
+          type: "createCollageType"
+          dataIns:
+          - name: "images"
+            type: "string"
+            source: "pCreateCollage/images"
+          - name: "bucketOut"
+            type: "string"
+            source: "pCreateCollage/bucketOut"            
+          dataOuts:
+          - name: "result"
+            type: "string"
+          properties:
+          - name: "resource"
+            value: "arn:aws:lambda:us-east-1:577131720219:function:createCollage"    
+  
+  
+  
+  
+  
+  
+  
+       
+       

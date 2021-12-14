@@ -5,30 +5,24 @@ const joinImages = require('join-images');
 
 
 exports.handler = async (event) => {
-  const {images} = event;
-  const bucket = process.env.Bucket;
+  const bucket = event.bucketOut;
+  const images = JSON.parse(event.images);
+  const emotion = Object.keys(images)[0]
+
+  let imageArr = images[emotion];
+
   let buffers = [];
-  let emotion = images[0].emotion;
-  images.forEach(i => {
-    buffers.push(Buffer.from(i.buffer.data));
+  imageArr.forEach(i => {
+    buffers.push(Buffer.from(i.buffer, 'base64'));
   })
   const res = await doCreateCollage(emotion, buffers, bucket);
   return {
-    statusCode: 200,
-    emotion: emotion
+    result: 200
   }
 }
 const doCreateCollage = async (emotion, buffers, bucket) => {
   return new Promise(async resolve => {
-    let buffersEncoded = [];
-    buffers.forEach(b => {
-      buffersEncoded.push(Buffer.from(b, 'base64'))
-    })
-    let joined = await joinImages.joinImages(buffersEncoded, {direction: 'horizontal'});
-    const buffered = await joined.toFormat('png');
-
-    joinImages.joinImages(buffersEncoded, {direction: 'horizontal'}).then(async data => {
-
+    joinImages.joinImages(buffers, {direction: 'horizontal'}).then(async data => {
       let body = await data.toFormat('png');
       body = await body.toBuffer();
       const params = {

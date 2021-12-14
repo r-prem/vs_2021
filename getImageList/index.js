@@ -3,13 +3,16 @@ const s3 = new AWS.S3();
 
 exports.handler = async (event) => {
 
-  console.log('called')
-  const params = {Bucket: process.env.Bucket, Delimiter: '/'}
+  const {bucketIn, bucketOut} = event;
+  const params = {Bucket: bucketIn, Delimiter: '/'}
   const images = await getAllKeys(params);
   return {
-    statusCode: 200,
-    body: images
+    imageList: images,
+    length: images.length,
+    bucketIn: bucketIn,
+    bucketOut: bucketOut
   }
+
 };
 
 const getAllKeys = async (params) => {

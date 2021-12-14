@@ -4,26 +4,24 @@ const rek = new AWS.Rekognition();
 exports.handler = async (event) => {
 
 
-  const {image} = event;
-  console.log(event);
+  const {image, bucketIn, bucketOut} = event;
   const params = {
     Image: {
       S3Object: {
-        Bucket: process.env.bucket,
+        Bucket: bucketIn,
         Name: image
       }
     },
     "Attributes": ["ALL"]
   }
   const resp = await rek.detectFaces(params).promise();
-  console.log(resp)
   const response = {
-    statusCode: 200,
-    body: {
-      image: image,
-      emotion: resp.FaceDetails[0].Emotions[0].Type,
-      boundingBox: resp.FaceDetails[0].BoundingBox
-    },
+
+    image: image,
+    emotion: resp.FaceDetails[0].Emotions[0].Type,
+    boundingBox: JSON.stringify(resp.FaceDetails[0].BoundingBox),
+    bucketIn: bucketIn,
+    bucketOut: bucketOut
   };
   return response;
 };

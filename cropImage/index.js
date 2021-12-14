@@ -6,14 +6,20 @@ const sharp = require('sharp');
 const sizeOf = require('buffer-image-size');
 
 exports.handler = async (event) => {
-  const {key, boundingBox, emotion} = event;
-  const params = {Bucket: process.env.Bucket, Key: key};
+  console.log(event)
+  let {key, boundingBox, emotion, bucketIn, bucketOut} = event;
+  const params = {Bucket: bucketIn, Key: key};
+  boundingBox = JSON.parse(boundingBox);
   const res = await getAndCrop(params, boundingBox);
+
   return {
-    statusCode: 200,
-    key: key,
-    emotion: emotion,
-    buffer: res
+    bucketIn: bucketIn,
+    bucketOut: bucketOut,
+   result: JSON.stringify({
+              key: key,
+              emotion: emotion,
+              buffer: res
+            })
   }
 };
 
@@ -37,6 +43,7 @@ const getAndCrop = async (params, boundingBox, key) => {
             resolve(data.toString('base64'))
           })
       }catch (e) {
+        console.log(e)
         resolve();
       }
     })
