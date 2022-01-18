@@ -16,7 +16,6 @@ exports.handler = async (event) => {
   }
   const resp = await rek.detectFaces(params).promise();
   const response = {
-
     image: image,
     emotion: resp.FaceDetails[0].Emotions[0].Type,
     boundingBox: JSON.stringify(resp.FaceDetails[0].BoundingBox),

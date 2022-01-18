@@ -6,22 +6,37 @@ const sharp = require('sharp');
 const sizeOf = require('buffer-image-size');
 
 exports.handler = async (event) => {
-  console.log(event)
   let {key, boundingBox, emotion, bucketIn, bucketOut} = event;
   const params = {Bucket: bucketIn, Key: key};
   boundingBox = JSON.parse(boundingBox);
   const res = await getAndCrop(params, boundingBox);
 
+  key = key.split('.')[0];
+  let newKey = key + '__cropped.png';
+  const a = await saveToBucket(newKey, res, bucketIn)
+
+
   return {
     bucketIn: bucketIn,
     bucketOut: bucketOut,
-   result: JSON.stringify({
+    result: JSON.stringify({
               key: key,
               emotion: emotion,
-              buffer: res
+              newKey: newKey
             })
-  }
+    }
 };
+const saveToBucket = async (key, buffer,bucket) => {
+  const params = {
+    Bucket: bucket,
+    Key: key,
+    Body: buffer
+  }
+  return await s3.upload(params).promise();
+}
+
+
+
 
 const getAndCrop = async (params, boundingBox, key) => {
   return new Promise(async resolve => {
@@ -38,9 +53,10 @@ const getAndCrop = async (params, boundingBox, key) => {
               height: parseInt((boundingBox.Height * imgDimensions.height).toFixed(0))
             }
           )
+          .png()
           .toBuffer()
-          .then(data => {
-            resolve(data.toString('base64'))
+          .then((data,info) => {
+            resolve(data)
           })
       }catch (e) {
         console.log(e)

@@ -1,0 +1,34 @@
+---
+name: "Untitled"
+dataIns:
+- name: "inputBucket"
+  type: "string"
+  source: "inputBucket"
+- name: "outputBucket"
+  type: "string"
+  source: "outputBucket"
+workflowBody:
+- function:
+    name: "getImageList"
+    type: "imageListType"
+    dataIns:
+    - name: "bucketIn"
+      type: "string"
+      source: "Untitled/inputBucket"
+    - name: "bucketOut"
+      type: "string"
+      source: "Untitled/outputBucket"
+    dataOuts:
+    - name: "length"
+      type:  "number"
+    - name: "imageList"
+      type: "collection"
+    - name: "bucketIn"
+      type: "string"
+    - name: "bucketOut"
+      type: "string"
+    properties:
+    - name: "resource"
+      value: "arn:aws:lambda:us-east-1:577131720219:function:getImageList"
+
+
